@@ -33,7 +33,7 @@
 		}
 	},
 	"links": {
-		"source": "https://github.com/legowiifun/GeometryDashStatDisplay"
+		"source": "https://github.com/legowiifun/GeometryDashSpawnLoop"
 	},
 	"tags": [ "Editor", "Offline", "Enhancement", "Interface", "Bugfix", "Utility" ]
 }

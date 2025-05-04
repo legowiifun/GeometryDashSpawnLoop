@@ -13,8 +13,8 @@ class $modify(EditorPauseLayer) {
 	void createSpawnTrigger(bool isSpawnTriggered, bool isMultiTriggered, int group, 
 		int targetGroupID, float spawnTriggerDelay, bool spawnOrdered, CCPoint p) {
 		GameObject* obj = m_editorLayer->createObject(1268, p, false);
-		SpawnTriggerGameObject* spwn = dynamic_cast<SpawnTriggerGameObject*>(obj);
-		if (spwn != nullptr) {
+		if (obj->m_objectID==1268) {
+			SpawnTriggerGameObject* spwn = static_cast<SpawnTriggerGameObject*>(obj);
 			spwn->m_isSpawnTriggered = isSpawnTriggered;
 			spwn->m_isMultiTriggered = isMultiTriggered;
 			if (group != 0) {
@@ -43,8 +43,8 @@ class $modify(EditorPauseLayer) {
 		bool flag = false;
 		// also add each trigger to the next free group, and set them to spawn-triggered and multi-triggered
 		for (int i = 0; i < ui->getSelectedObjects()->count(); i++) {
-			EffectGameObject* obj = dynamic_cast<EffectGameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
-			if (obj != nullptr) {
+			if (static_cast<GameObject*>(ui->getSelectedObjects()->objectAtIndex(i))->m_classType==GameObjectClassType::Effect) {
+				EffectGameObject* obj = static_cast<EffectGameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
 				obj->m_isSpawnTriggered = true;
 				obj->m_isMultiTriggered = true;
 				obj->addToGroup(id);
