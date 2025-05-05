@@ -17,23 +17,10 @@
 			"description": "disables the mod",
 			"type": "bool",
 			"default": false
-		},
-		"delay": {
-			"name": "Determine the delay before the loop loops",
-			"description": "Determines the delay between the start of the loop, and when it happens again",
-			"type": "float",
-			"default": 1,
-			"min": 0.1,
-			"controls": {
-				"slider": true,
-				"slider-step": 0.0001,
-				"input": true
-			},
-			"enable-if": "!disable"
 		}
 	},
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashSpawnLoop"
 	},
-	"tags": [ "editor", "offline", "enhancement", "interface", "bugfix", "utility" ]
+	"tags": [ "Editor", "Offline", "Enhancement", "Interface", "Bugfix", "Utility" ]
 }

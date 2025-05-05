@@ -38,29 +38,63 @@ class $modify(EditorPauseLayer) {
 		int id = m_editorLayer->getNextFreeGroupID(CCArray::create());
 
 		// get the minimum x coordinate of the loop, and the y coordinate of that object
-		float minX=0;
+		float minX = 0;
 		float y = 0;
-		bool flag = false;
+		bool flagMin = false;
+		bool flagMax = false;
+		float maxX = 0;
+		float delay = 0;
+		bool lastObjTrigger = false;
 		// also add each trigger to the next free group, and set them to spawn-triggered and multi-triggered
 		for (int i = 0; i < ui->getSelectedObjects()->count(); i++) {
-			if (static_cast<GameObject*>(ui->getSelectedObjects()->objectAtIndex(i))->m_classType==GameObjectClassType::Effect) {
-				EffectGameObject* obj = static_cast<EffectGameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
-				obj->m_isSpawnTriggered = true;
-				obj->m_isMultiTriggered = true;
-				obj->addToGroup(id);
-				if (!flag || obj->getPositionX() < minX) {
-					minX=obj->getPositionX();
+			GameObject* obj = static_cast<GameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
+			if (obj->m_classType==GameObjectClassType::Effect) {
+				EffectGameObject* effectObj = static_cast<EffectGameObject*>(obj);
+				effectObj->m_isSpawnTriggered = true;
+				effectObj->m_isMultiTriggered = true;
+				effectObj->addToGroup(id);
+			}
+			// get the minimum x coordinate
+			// and the highest y coordinate at that position
+			if (!flagMin || obj->getPositionX() < minX) {
+				minX = obj->getPositionX();
+				y = obj->getPositionY();
+				flagMin = true;
+			}
+			else if (obj->getPositionX() == minX) {
+				if (obj->getPositionY() > y) {
 					y = obj->getPositionY();
-					flag = true;
+				}
+			}
+			// get the maximum x coordinate
+			if (!flagMax || obj->getPositionX() > maxX) {
+				maxX = obj->getPositionX();
+				flagMax = true;
+				if (obj->m_classType == GameObjectClassType::Effect) {
+					if (obj->m_objectID == 1006) {
+						EffectGameObject* effectObj = static_cast<EffectGameObject*>(obj);
+						delay = effectObj->m_fadeInDuration;
+						delay += effectObj->m_holdDuration;
+						delay += effectObj->m_fadeOutDuration;
+					}
+					else {
+						delay = static_cast<EffectGameObject*>(obj)->m_duration;
+					}
 				}
 			}
 		}
 
+		// calculate the delay
+		// 1 second is 10*30 + 5*2 + 3*0.5 + 1*0.1=311.6
+		// 1 unit is 0.0032 seconds
+		// 5/1558 seconds for more accuracy
+		// spawn triggers only go up to 4-digit accuracy
+		delay += (0.0032 * (maxX - minX));
 		CCPoint p;
 		
 		// set up the first spawn trigger
 		p.setPoint(minX, y + 60);
-		createSpawnTrigger(true, true, id, id, Mod::get()->getSettingValue<float>("delay"), true, p);
+		createSpawnTrigger(true, true, id, id, delay, true, p);
 
 		// set up the second spawn trigger
 		p.setPoint(minX, y + 90);
