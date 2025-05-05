@@ -8,7 +8,7 @@
 	},
 	"id": "legowiifun.better_spawn_loop",
 	"name": "Better Spawn Loop",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"developer": "legowiifun",
 	"description": "Makes the create loop button more efficient",
 	"settings": {
