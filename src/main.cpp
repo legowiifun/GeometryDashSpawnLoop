@@ -11,7 +11,7 @@ using namespace geode::prelude;
 
 class $modify(EditorPauseLayer) {
 	void createSpawnTrigger(bool isSpawnTriggered, bool isMultiTriggered, int group, 
-		int targetGroupID, float spawnTriggerDelay, bool spawnOrdered, CCPoint p) {
+		int targetGroupID, float spawnTriggerDelay, bool spawnOrdered, CCPoint p, bool isTouchTriggered) {
 		GameObject* obj = m_editorLayer->createObject(1268, p, false);
 		if (obj->m_objectID==1268) {
 			SpawnTriggerGameObject* spwn = static_cast<SpawnTriggerGameObject*>(obj);
@@ -23,6 +23,17 @@ class $modify(EditorPauseLayer) {
 			spwn->m_targetGroupID = targetGroupID;
 			spwn->m_spawnDelay = spawnTriggerDelay;
 			spwn->m_spawnOrdered = spawnOrdered;
+			spwn->m_isTouchTriggered = isTouchTriggered;
+			spwn->m_shouldPreview = isTouchTriggered;
+		}
+	}
+	void createStopTrigger(int targetGroupID, CCPoint p) {
+		GameObject* obj = m_editorLayer->createObject(1616, p, false);
+		if (obj->m_objectID == 1616) {
+			EffectGameObject* stop = static_cast<EffectGameObject*>(obj);
+			stop->m_targetGroupID = targetGroupID;
+			stop->m_isTouchTriggered = true;
+			stop->m_shouldPreview = true;
 		}
 	}
 	void onCreateLoop(cocos2d::CCObject * sender) {
@@ -94,10 +105,35 @@ class $modify(EditorPauseLayer) {
 		
 		// set up the first spawn trigger
 		p.setPoint(minX, y + 60);
-		createSpawnTrigger(true, true, id, id, delay, true, p);
+		createSpawnTrigger(true, true, id, id, delay, true, p, false);
 
 		// set up the second spawn trigger
+		bool boilerplate = Mod::get()->getSettingValue<bool>("boilerplate");
 		p.setPoint(minX, y + 90);
-		createSpawnTrigger(false, false, 0, id, 0, true, p);
+		if (!boilerplate) {
+			createSpawnTrigger(false, false, 0, id, 0, true, p, false);
+		} else {
+			int id2= m_editorLayer->getNextFreeGroupID(CCArray::create());
+			createSpawnTrigger(true, true, id2, id, 0, true, p, false);
+			// set up the third spawn trigger
+			// for initialization
+			p.setPoint(minX, y + 120);
+			createSpawnTrigger(false, false, 0, id2, 0, false, p, true);
+			// set up a color trigger
+			// to showcase the delay
+			p.setPoint(minX, y - 30);
+			GameObject* obj = m_editorLayer->createObject(899, p, false);
+			if (obj->m_objectID == 899)  {
+				EffectGameObject* col = static_cast<EffectGameObject*>(obj);
+				col->m_duration = delay;
+				col->m_isTouchTriggered = true;
+				col->m_shouldPreview = false;
+			}
+			// set up the stop triggers
+			p.setPoint(minX - 30, y + 90);
+			createStopTrigger(id, p);
+			p.setPoint(minX - 30, y + 120);
+			createStopTrigger(id2, p);
+		}
 	}
 };
