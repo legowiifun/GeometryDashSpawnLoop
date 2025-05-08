@@ -4,12 +4,19 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorPauseLayer.hpp>
 
-/**
- * Brings cocos2d and all Geode namespaces to the current scope.
- */
+ /**
+  * Brings cocos2d and all Geode namespaces to the current scope.
+  */
 using namespace geode::prelude;
 
-class $modify(EditorPauseLayer) {
+enum loopType {
+	robtop, optimized, boilerplate
+};
+
+class $modify(BSLPauseLayer, EditorPauseLayer) {
+	/*
+	* Create a spawn trigger with various properties
+	*/
 	void createSpawnTrigger(bool isSpawnTriggered, bool isMultiTriggered, int group, 
 		int targetGroupID, float spawnTriggerDelay, bool spawnOrdered, CCPoint p, bool isTouchTriggered) {
 		GameObject* obj = m_editorLayer->createObject(1268, p, false);
@@ -27,6 +34,9 @@ class $modify(EditorPauseLayer) {
 			spwn->m_shouldPreview = isTouchTriggered;
 		}
 	}
+	/*
+	* Create a stop trigger with various properties
+	*/
 	void createStopTrigger(int targetGroupID, CCPoint p) {
 		GameObject* obj = m_editorLayer->createObject(1616, p, false);
 		if (obj->m_objectID == 1616) {
@@ -36,10 +46,13 @@ class $modify(EditorPauseLayer) {
 			stop->m_shouldPreview = true;
 		}
 	}
-	void onCreateLoop(cocos2d::CCObject * sender) {
-		auto disable = Mod::get()->getSettingValue<bool>("disable");
-		// if the mod is disabled
-		if (disable) {
+	/*
+	* Create a spawn loop
+	* can create any type of spawn loop
+	*/
+	void loopCreate(cocos2d::CCObject* sender, loopType lt) {
+		// if you want the traditional robtop spawn loop
+		if (lt == loopType::robtop) {
 			EditorPauseLayer::onCreateLoop(sender);
 			return;
 		}
@@ -59,7 +72,7 @@ class $modify(EditorPauseLayer) {
 		// also add each trigger to the next free group, and set them to spawn-triggered and multi-triggered
 		for (int i = 0; i < ui->getSelectedObjects()->count(); i++) {
 			GameObject* obj = static_cast<GameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
-			if (obj->m_classType==GameObjectClassType::Effect) {
+			if (obj->m_classType == GameObjectClassType::Effect) {
 				EffectGameObject* effectObj = static_cast<EffectGameObject*>(obj);
 				effectObj->m_isSpawnTriggered = true;
 				effectObj->m_isMultiTriggered = true;
@@ -102,18 +115,19 @@ class $modify(EditorPauseLayer) {
 		// spawn triggers only go up to 4-digit accuracy
 		delay += (0.0032 * (maxX - minX));
 		CCPoint p;
-		
+
 		// set up the first spawn trigger
 		p.setPoint(minX, y + 60);
 		createSpawnTrigger(true, true, id, id, delay, true, p, false);
 
 		// set up the second spawn trigger
-		bool boilerplate = Mod::get()->getSettingValue<bool>("boilerplate");
+		bool boilerplate = (lt == loopType::boilerplate);
 		p.setPoint(minX, y + 90);
 		if (!boilerplate) {
 			createSpawnTrigger(false, false, 0, id, 0, true, p, false);
-		} else {
-			int id2= m_editorLayer->getNextFreeGroupID(CCArray::create());
+		}
+		else {
+			int id2 = m_editorLayer->getNextFreeGroupID(CCArray::create());
 			createSpawnTrigger(true, true, id2, id, 0, true, p, false);
 			// set up the third spawn trigger
 			// for initialization
@@ -123,7 +137,7 @@ class $modify(EditorPauseLayer) {
 			// to showcase the delay
 			p.setPoint(minX, y - 30);
 			GameObject* obj = m_editorLayer->createObject(899, p, false);
-			if (obj->m_objectID == 899)  {
+			if (obj->m_objectID == 899) {
 				EffectGameObject* col = static_cast<EffectGameObject*>(obj);
 				col->m_duration = delay;
 				col->m_isTouchTriggered = true;
@@ -135,5 +149,57 @@ class $modify(EditorPauseLayer) {
 			p.setPoint(minX - 30, y + 120);
 			createStopTrigger(id2, p);
 		}
+	}
+	
+	// used for button callbacks
+	void optLoop(cocos2d::CCObject* sender) {
+		loopCreate(sender, loopType::optimized);
+	}
+	void bpLoop(cocos2d::CCObject* sender) {
+		loopCreate(sender, loopType::boilerplate);
+	}
+
+	// HOOKS: 
+	// create a spawn loop
+	void onCreateLoop(cocos2d::CCObject* sender) {
+		bool buttonMode = (Mod::get()->getSettingValue<std::string>("loopVersion")) == "robtop spawn loop"
+			|| (Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons";
+		if (buttonMode) {
+			loopCreate(sender, loopType::robtop);
+		}
+		else if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "minimal spawn loop") {
+			loopCreate(sender, loopType::optimized);
+		}
+		else {
+			loopCreate(sender, loopType::boilerplate);
+		}
+	}
+
+	// initialize the editorPauseLayer
+	bool init(LevelEditorLayer* layer) {
+		if (!EditorPauseLayer::init(layer)) {
+			return false;
+		}
+		// if you want separate buttons, add them
+		if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons") {
+			ButtonSprite* spr1 = ButtonSprite::create("minimal spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
+			CCMenuItemSpriteExtra* btn1 = CCMenuItemSpriteExtra::create(
+				spr1, this, menu_selector(BSLPauseLayer::optLoop)
+			);
+			btn1->setID("minimal_spawn_loop_button"_spr);
+
+			ButtonSprite* spr2 = ButtonSprite::create("boilerplate spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
+			CCMenuItemSpriteExtra* btn2 = CCMenuItemSpriteExtra::create(
+				spr2, this, menu_selector(BSLPauseLayer::bpLoop)
+			);
+			btn2->setID("minimal_spawn_loop_button"_spr);
+
+			CCNode* menu = getChildByID("small-actions-menu");
+			CCNode* afterNode = static_cast<CCNode*>(menu->getChildren()->objectAtIndex(0));
+			menu->insertBefore(btn1, afterNode);
+			menu->insertBefore(btn2, afterNode);
+			menu->updateLayout();
+		}
+		return true;
 	}
 };

@@ -1,3 +1,8 @@
+# 1.0.3
+- Reorganized settings
+	- You will have to reset any previously set settings
+- Added option to add the better spawn loop buttons as separate buttons in the editor pause menu
+	- if you have "Relocate Build Tools" by Alphalaneous, they will be automatically moved with the normal spawn loop button
 # 1.0.2
 - Add setting to add additional boilerplate triggers
 	- These triggers can make using these spawn loops easier in platformer levels
