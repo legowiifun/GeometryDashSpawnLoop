@@ -192,7 +192,7 @@ class $modify(BSLPauseLayer, EditorPauseLayer) {
 			CCMenuItemSpriteExtra* btn2 = CCMenuItemSpriteExtra::create(
 				spr2, this, menu_selector(BSLPauseLayer::bpLoop)
 			);
-			btn2->setID("minimal_spawn_loop_button"_spr);
+			btn2->setID("boilerplate_spawn_loop_button"_spr);
 
 			CCNode* menu = getChildByID("small-actions-menu");
 			CCNode* afterNode = static_cast<CCNode*>(menu->getChildren()->objectAtIndex(0));
