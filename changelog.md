@@ -1,3 +1,5 @@
+# 1.0.4
+- JIT-less IOS support!
 # 1.0.3
 - Reorganized settings
 	- You will have to reset any previously set settings
