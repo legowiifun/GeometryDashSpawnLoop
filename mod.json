@@ -1,5 +1,5 @@
 {
-	"geode": "4.6.1",
+	"geode": "4.10.0",
 	"gd": {
 		"win": "2.2074",
 		"android": "2.2074",
@@ -28,5 +28,5 @@
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashSpawnLoop"
 	},
-	"tags": [ "Editor", "Offline", "Enhancement", "Interface", "Bugfix", "Utility" ]
+	"tags": [ "editor", "offline", "enhancement", "interface", "bugfix", "utility" ]
 }
