@@ -59,7 +59,8 @@ class $modify(BSLPauseLayer, EditorPauseLayer) {
 		// otherwise...
 		// get the editor UI and the next free group ID
 		EditorUI* ui = m_editorLayer->m_editorUI;
-		int id = m_editorLayer->getNextFreeGroupID(CCArray::create());
+		const std::unordered_set<int> set;
+		int id = m_editorLayer->getNextFreeGroupID(set);
 
 		// get the minimum x coordinate of the loop, and the y coordinate of that object
 		float minX = 0;
@@ -127,7 +128,7 @@ class $modify(BSLPauseLayer, EditorPauseLayer) {
 			createSpawnTrigger(false, false, 0, id, 0, true, p, false);
 		}
 		else {
-			int id2 = m_editorLayer->getNextFreeGroupID(CCArray::create());
+			int id2 = m_editorLayer->getNextFreeGroupID(set);
 			createSpawnTrigger(true, true, id2, id, 0, true, p, false);
 			// set up the third spawn trigger
 			// for initialization
