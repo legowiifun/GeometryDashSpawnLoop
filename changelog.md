@@ -1,3 +1,5 @@
+# 1.0.5
+- 2.208 support!
 # 1.0.4
 - JIT-less IOS support!
 # 1.0.3

@@ -1,20 +1,20 @@
 {
-	"geode": "5.0.0-alpha.1",
+	"geode": "5.0.0-beta.1",
 	"gd": {
-		"win": "2.208",
-		"android": "2.208",
-		"mac": "2.208",
-		"ios": "2.208"
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
 	},
 	"id": "legowiifun.better_spawn_loop",
 	"name": "Better Spawn Loop",
-	"version": "v1.0.4",
+	"version": "v1.0.5",
 	"developer": "legowiifun",
 	"description": "Makes the create loop button more efficient",
 	"settings": {
 		"loopVersion": {
 			"name": "loop version",
-			"description": "determines what version of the loop is used",
+			"description": "determines what version of the loop is used. If node IDs is not enabled, then \"separate buttons\" will revert to minimal spawn loop",
 			"type": "string",
 			"default": "spawn loop with boilerplate",
 			"one-of": [
@@ -24,6 +24,9 @@
 				"separate buttons"
 			]
 		}
+	},
+	"dependencies": {
+		"geode.node-ids": ">=1.22.0"
 	},
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashSpawnLoop"
