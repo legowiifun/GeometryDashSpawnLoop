@@ -1,5 +1,7 @@
 # 1.0.5
 - 2.208 support!
+- Temporarilly removed Android support.
+	- One of the methods I used in this mod is not available on Android on the latest GD update. 
 # 1.0.4
 - JIT-less IOS support!
 # 1.0.3
