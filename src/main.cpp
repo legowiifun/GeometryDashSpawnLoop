@@ -2,7 +2,9 @@
  * Include the Geode headers.
  */
 #include <Geode/Geode.hpp>
-#include <Geode/modify/EditorPauseLayer.hpp>
+#include <Geode/modify/EditorCommandsPopup.hpp>
+#include <Geode/modify/EditorUI.hpp>
+#include <Geode/Enums.hpp>
 
  /**
   * Brings cocos2d and all Geode namespaces to the current scope.
@@ -13,7 +15,65 @@ enum loopType {
 	robtop, optimized, boilerplate
 };
 
-class $modify(BSLPauseLayer, EditorPauseLayer) {
+class $modify(BSLCommandsPopup, EditorCommandsPopup) {
+	/*bool init(EditorUI* p0) {
+		if (!EditorCommandsPopup::init(p0)) {
+			return false;
+		}
+		geode::log::debug("Init EditorCommandsPopup");
+		if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons") {
+			addCommandButton("minimal spawn loop", EditorCommand::a)
+		}
+		return true;
+	}*/
+	void onBuildWindowContent() {
+		EditorCommandsPopup::onBuildWindowContent();
+		geode::log::debug("OnBuildWindowContent called");
+		if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons") {
+			
+		}
+	}
+	void addCommandButton(char const* p0, EditorCommand p1) {
+		EditorCommandsPopup::addCommandButton(p0, p1);
+		geode::log::debug("Adding command button: p0={}",p0);
+	}
+	void onCommand(cocos2d::CCObject* sender) {
+		EditorCommandsPopup::onCommand(sender);
+		geode::log::debug("Calling onCommand");
+	}
+};
+/*class $modify(BSLPauseLayer, EditorPauseLayer) {
+	// initialize the editorPauseLayer
+	bool init(LevelEditorLayer* layer) {
+		if (!EditorPauseLayer::init(layer)) {
+			return false;
+		}
+		// if you want separate buttons, add them
+		if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons") {
+			ButtonSprite* spr1 = ButtonSprite::create("minimal spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
+			CCMenuItemSpriteExtra* btn1 = CCMenuItemSpriteExtra::create(
+				spr1, this, menu_selector(BSLPauseLayer::optLoop)
+			);
+			btn1->setID("minimal_spawn_loop_button"_spr);
+
+			ButtonSprite* spr2 = ButtonSprite::create("boilerplate spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
+			CCMenuItemSpriteExtra* btn2 = CCMenuItemSpriteExtra::create(
+				spr2, this, menu_selector(BSLPauseLayer::bpLoop)
+			);
+			btn2->setID("boilerplate_spawn_loop_button"_spr);
+
+			CCNode* menu = getChildByID("small-actions-menu");
+			CCNode* afterNode = static_cast<CCNode*>(menu->getChildren()->objectAtIndex(0));
+			menu->insertBefore(btn1, afterNode);
+			menu->insertBefore(btn2, afterNode);
+			menu->updateLayout();
+		}
+		return true;
+	}
+};*/
+
+
+class $modify(BSLEditorUI, EditorUI) {
 	/*
 	* Create a spawn trigger with various properties
 	*/
@@ -50,10 +110,10 @@ class $modify(BSLPauseLayer, EditorPauseLayer) {
 	* Create a spawn loop
 	* can create any type of spawn loop
 	*/
-	void loopCreate(cocos2d::CCObject* sender, loopType lt) {
+	void loopCreate(loopType lt) {
 		// if you want the traditional robtop spawn loop
 		if (lt == loopType::robtop) {
-			EditorPauseLayer::onCreateLoop(sender);
+			EditorUI::createLoop();
 			return;
 		}
 		// otherwise...
@@ -153,54 +213,25 @@ class $modify(BSLPauseLayer, EditorPauseLayer) {
 	}
 	
 	// used for button callbacks
-	void optLoop(cocos2d::CCObject* sender) {
-		loopCreate(sender, loopType::optimized);
+	void optLoop() {
+		loopCreate(loopType::optimized);
 	}
-	void bpLoop(cocos2d::CCObject* sender) {
-		loopCreate(sender, loopType::boilerplate);
+	void bpLoop() {
+		loopCreate(loopType::boilerplate);
 	}
-
-	// HOOKS: 
-	// create a spawn loop
-	void onCreateLoop(cocos2d::CCObject* sender) {
+	//HOOKS: 
+	//Create a spawn loop
+	void createLoop() {
 		bool buttonMode = (Mod::get()->getSettingValue<std::string>("loopVersion")) == "robtop spawn loop"
 			|| (Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons";
 		if (buttonMode) {
-			loopCreate(sender, loopType::robtop);
+			loopCreate(loopType::robtop);
 		}
 		else if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "minimal spawn loop") {
-			loopCreate(sender, loopType::optimized);
+			loopCreate(loopType::optimized);
 		}
 		else {
-			loopCreate(sender, loopType::boilerplate);
+			loopCreate(loopType::boilerplate);
 		}
-	}
-
-	// initialize the editorPauseLayer
-	bool init(LevelEditorLayer* layer) {
-		if (!EditorPauseLayer::init(layer)) {
-			return false;
-		}
-		// if you want separate buttons, add them
-		if ((Mod::get()->getSettingValue<std::string>("loopVersion")) == "separate buttons") {
-			ButtonSprite* spr1 = ButtonSprite::create("minimal spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
-			CCMenuItemSpriteExtra* btn1 = CCMenuItemSpriteExtra::create(
-				spr1, this, menu_selector(BSLPauseLayer::optLoop)
-			);
-			btn1->setID("minimal_spawn_loop_button"_spr);
-
-			ButtonSprite* spr2 = ButtonSprite::create("boilerplate spawn loop", 30, true, "bigFont.fnt", "GJ_button_04.png", 30.f, 0.3f);
-			CCMenuItemSpriteExtra* btn2 = CCMenuItemSpriteExtra::create(
-				spr2, this, menu_selector(BSLPauseLayer::bpLoop)
-			);
-			btn2->setID("boilerplate_spawn_loop_button"_spr);
-
-			CCNode* menu = getChildByID("small-actions-menu");
-			CCNode* afterNode = static_cast<CCNode*>(menu->getChildren()->objectAtIndex(0));
-			menu->insertBefore(btn1, afterNode);
-			menu->insertBefore(btn2, afterNode);
-			menu->updateLayout();
-		}
-		return true;
 	}
 };
