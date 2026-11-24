@@ -92,6 +92,7 @@ class $modify(BSLEditorUI, EditorUI) {
 			spwn->m_spawnOrdered = spawnOrdered;
 			spwn->m_isTouchTriggered = isTouchTriggered;
 			spwn->m_shouldPreview = isTouchTriggered;
+			m_editorLayer->refreshSpecial(spwn);
 		}
 	}
 	/*
@@ -104,6 +105,7 @@ class $modify(BSLEditorUI, EditorUI) {
 			stop->m_targetGroupID = targetGroupID;
 			stop->m_isTouchTriggered = true;
 			stop->m_shouldPreview = true;
+			m_editorLayer->refreshSpecial(stop);
 		}
 	}
 	/*
@@ -117,8 +119,7 @@ class $modify(BSLEditorUI, EditorUI) {
 			return;
 		}
 		// otherwise...
-		// get the editor UI and the next free group ID
-		EditorUI* ui = m_editorLayer->m_editorUI;
+		// get the next free group ID
 		const std::unordered_set<int> set;
 		int id = m_editorLayer->getNextFreeGroupID(set);
 
@@ -131,8 +132,8 @@ class $modify(BSLEditorUI, EditorUI) {
 		float delay = 0;
 		bool lastObjTrigger = false;
 		// also add each trigger to the next free group, and set them to spawn-triggered and multi-triggered
-		for (int i = 0; i < ui->getSelectedObjects()->count(); i++) {
-			GameObject* obj = static_cast<GameObject*>(ui->getSelectedObjects()->objectAtIndex(i));
+		for (int i = 0; i < getSelectedObjects()->count(); i++) {
+			GameObject* obj = static_cast<GameObject*>(getSelectedObjects()->objectAtIndex(i));
 			if (obj->m_classType == GameObjectClassType::Effect) {
 				EffectGameObject* effectObj = static_cast<EffectGameObject*>(obj);
 				effectObj->m_isSpawnTriggered = true;
